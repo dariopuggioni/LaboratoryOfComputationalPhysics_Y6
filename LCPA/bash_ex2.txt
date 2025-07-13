@@ -1,0 +1,33 @@
+Ex 2
+2.a Make a copy of the file data.csv removing the metadata and the commas between numbers; call it data.txt
+
+2.b How many even numbers are there?
+
+2.c Distinguish the entries on the basis of sqrt(X^2 + Y^2 + Z^2) is greater or smaller than 100*sqrt(3)/2.
+Count the entries of each of the two groups
+
+2.d Make n copies of data.txt (with n an input parameter of the script), 
+where the i-th copy has all the numbers divided by i (with 1<=i<=n).
+######################################################################################
+# 1a  Remove metadata and commas between numbers and save it to data.txt
+grep -v '^#' data.csv | tr -d ',' > data.txt
+
+# 2b  Count the even numbers in data.txt
+even_count=$(awk '{for(i=1;i<=NF;i++) if($i % 2 == 0) count++} END{print count}' data.txt)
+echo "The number of even numbers is: $even_count"
+
+#2c Calculate the magnitude for each entry and compare with the threshold
+threshold=$(echo "100*sqrt(3)/2" | bc -l)
+greater_count=$(awk -v threshold="$threshold" '{if(sqrt($1*$1 + $2*$2 + $3*$3) > threshold) count++} END{print count}' data.txt)
+smaller_count=$(awk -v threshold="$threshold" '{if(sqrt($1*$1 + $2*$2 + $3*$3) <= threshold) count++} END{print count}' data.txt)
+
+echo "Number of entries where sqrt(X^2 + Y^2 + Z^2) is greater than 100*sqrt(3)/2: $greater_count"
+echo "Number of entries where sqrt(X^2 + Y^2 + Z^2) is smaller than or equal to 100*sqrt(3)/2: $smaller_count"
+
+#2d  Get the input parameter n
+read -p "Enter the value of n: " n     ####oppure read n #### e n diventa variabile
+
+# Make n copies of data.txt with numbers divided by i
+for ((i=1; i<=n; i++)); do
+    awk -v divisor="$i" '{for(j=1;j<=NF;j++) printf "%.2f ", $j/divisor; print ""}' data.txt > data_${i}.txt
+done

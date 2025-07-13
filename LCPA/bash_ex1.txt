@@ -1,0 +1,39 @@
+Ex 1
+1.a Make a new directory called students in your home. Download a csv file with the list of students
+of this lab from here (use the wget command) and copy that to students. 
+First check whether the file is already there
+
+1.b Make two new files, one containing the students belonging to PoD, the other to Physics.
+
+1.c For each letter of the alphabet, count the number of students whose surname starts with that letter.
+
+1.d Find out which is the letter with most counts.
+
+1.e Assume an obvious numbering of the students in the file (first line is 1, second line is 2, etc.), 
+group students "modulo 18", i.e. 1,19,37,.. 2,20,38,.. etc. and put each group in a separate file
+#########################################################################################
+#1a
+
+mkdir ~/students  
+cd ~/students  
+if [ ! -f "LCP_22-23_students.csv" ]; then  
+    wget https://www.dropbox.com/s/867rtx3az6e9gm8/LCP_22-23_students.csv 
+fi
+
+#1b
+
+grep "PoD" LCP_22-23_students.csv > PoD_students.csv  
+grep "Physics" LCP_22-23_students.csv > Physics_students.csv 
+
+#### 1c For each letter of the alphabet, count the number of students whose surname starts with that letter
+
+awk -F',' '{print substr($1,1,1)}' LCP_22-23_students.csv | sort | uniq -c > count_per_letter.txt
+
+#### 1d Find out which is the letter with most counts
+
+sort -nr count_per_letter.txt | head -n 1
+
+#### 1e Assume an obvious numbering of the students in the file (first line is 1, second line is 2, etc.),
+####group students "modulo 18", i.e. 1,19,37,.. 2,20,38,.. etc. and put each group in a separate file 
+
+for ((i = 2; i <= 18; i++)); do     sed -n "${i}~18 p" LCP_22-23_students.csv > "group_$((i-1)).csv"; done
